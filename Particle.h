@@ -18,7 +18,8 @@ class Particle : public TObject{
   // le member function sono virtuali se possono essere implementato da classi figlie, posso chiamarle nella classe madre attraverso puntatori che puntano a classi figlie dove sono implementati
 
 
-  Point fPointTemp;
+//forse poi verranno tolti, per il momento restano lì...
+  Point fPointTemp; 
   double fTetaTemp;
   double fPhiTemp;
   double fT;
@@ -34,9 +35,9 @@ class Particle : public TObject{
   void SetPointTemp(double x, double y, double z, double teta, double phi);
   void SetPointTemp(Point point, double teta, double phi);
 
- private:
+ private:  // inizializzati quando generi la particella
 
-  Point fPoint;
+  Point fPoint; 
   double fTeta;
   double fPhi;
 
