@@ -17,22 +17,27 @@
 TH1F* maniphist();
 
 void Generation(){
-	TFile F("kinem.root");
+  TFile F("kinem.root");
   TH1F *disteta = maniphist();
   TH1F *distmult = (TH1F*)F.Get("hmul");
-	Generator Prova(15.3,0.1,53.,distmult,disteta);
-	int mult;
-	for (int j=0; j<20; j++){    
-		Point p;
-		mult=Prova.RndmMult();
-		TClonesArray parts("Particle",mult);
-		Prova.SimulateEvent(p,parts);
-		p.PrintStatus();
-		for(int i=0; i<parts.GetEntries();i++){
-			Particle* a=(Particle*) parts[i];
-			cout<<"theta della particella"<<i<<": "<<a->GetTheta()<<endl;
-		}
-	}
+  Generator Prova(15.3,0.1,53.,distmult,disteta);
+
+  TClonesArray* ptrparts = new TClonesArray("Particle",100);
+  TClonesArray& parts = *ptrparts;
+
+  int mult;
+  for (int j=0; j<20; j++){    
+    Point p;
+    mult=Prova.RndmMult();
+    //TClonesArray parts("Particle",mult);
+    ptrparts->Clear("C");
+    Prova.SimulateEvent(p,parts);
+    p.PrintStatus();
+    for(int i=0; i<parts.GetEntries();i++){
+      Particle* a=(Particle*) ptrparts->At(i);
+      cout<<"theta della particella"<<i<<": "<<a->GetTheta()<<endl;
+    }
+  }
 }
 
 TH1F* maniphist(){
