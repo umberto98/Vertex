@@ -20,9 +20,7 @@ Generator::Generator():
    fZrms(0.),
    fPsdrapRng(0.),
    fSeed(0.),
-   fProdPoint(0.,0.,0.),
    fDist(false),
-   fProdParticles(NULL),
    fEtaDist(NULL),
    fMultDist(NULL)
  {
@@ -97,7 +95,7 @@ void Generator::SimulateEvent(Point &collpoint, TClonesArray &genparts){
 			else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
 			theta=PsdrapInv(eta);
 			phi=2*acos(-1)*gRandom->Rndm();
-			new(genparts[j]) Particle(x,y,z,theta,phi,0);
+			new(genparts[j]) Particle(x,y,z,theta,phi);
 	 }
 	}
 	else {
@@ -107,7 +105,7 @@ void Generator::SimulateEvent(Point &collpoint, TClonesArray &genparts){
   }
 	
 }
-
+/*
 void Generator::SaveParticlesToFile(TString filename){
 	TFile file(filename, "RECREATE");
 	TTree* tree = new TTree("T","PVMCTrue");
@@ -126,7 +124,7 @@ void Generator::SaveParticlesToFile(TString filename){
 	delete ptrparticles;
 	file.Close();
 	}
-
+*/
 
 double Generator::PsdrapInv(double eta){
 	return 2*atan(TMath::Exp(-eta));

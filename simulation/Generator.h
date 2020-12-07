@@ -22,8 +22,7 @@ class Generator : public TObject{
    virtual ~Generator();
    
    
-   Point fProdPoint;
-   Particle *fProdParticles;
+ 
   
    
    void SetSeed(double seed);
@@ -32,7 +31,7 @@ class Generator : public TObject{
    void SetZrms(double zrms);
    void SetPsdrapRng(double psdraprng);
    
-   void SaveParticlesToFile(TString filename);
+   //void SaveParticlesToFile(TString filename);
    void SimulateEvent(Point &collpoint, TClonesArray &genparts);
    int RndmMult();
    
