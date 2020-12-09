@@ -10,6 +10,5 @@ void CompileAll(TString myopt="fast"){
   gSystem->CompileMacro("Particle.cxx",opt.Data());
   gSystem->CompileMacro("Generator.cxx",opt.Data());
   gSystem->CompileMacro("Propagator.cxx",opt.Data());
-  gSystem->CompileMacro("Generation.C",opt.Data());
-  gSystem->CompileMacro("ProvaProp.C",opt.Data());
+  gSystem->CompileMacro("Simulation.C",opt.Data());
 }

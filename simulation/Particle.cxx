@@ -118,7 +118,7 @@ void Particle::CartesianToPolar(double *cd){
 
   fTheta=TMath::ACos(cd[2]/TMath::Sqrt(p2));
   
-  if(cd[1]>0) fPhi=TMath::ATan2(cd[1],cd[0])+2*TMath::ACos(-1);
+  if(cd[1]<0) fPhi=TMath::ATan2(cd[1],cd[0])+2*TMath::ACos(-1);
   else fPhi=TMath::ATan2(cd[1],cd[0]);
   
 }
