@@ -9,5 +9,7 @@ void CompileAll(TString myopt="fast"){
   gSystem->CompileMacro("Point.cxx",opt.Data());
   gSystem->CompileMacro("Particle.cxx",opt.Data());
   gSystem->CompileMacro("Generator.cxx",opt.Data());
+  gSystem->CompileMacro("Propagator.cxx",opt.Data());
   gSystem->CompileMacro("Generation.C",opt.Data());
+  gSystem->CompileMacro("ProvaProp.C",opt.Data());
 }

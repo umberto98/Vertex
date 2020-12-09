@@ -13,31 +13,51 @@
 #include <TBranch.h>
 #include <TString.h>
 #include "Point.h"
+#include "Propagator.h"
 
 TH1F* maniphist();
 
-void Generation(){
+void Generation(){ 
+
   TFile F("kinem.root");
   TH1F *disteta = maniphist();
   TH1F *distmult = (TH1F*)F.Get("hmul");
-  Generator Prova(15.3,0.1,53.,distmult,disteta);
+  Generator *gen = new Generator();
+  
+  Propagator *prop = Propagator::Instance();
+  prop->PrintStatus();
+  
 
   TClonesArray* ptrparts = new TClonesArray("Particle",100);
   TClonesArray& parts = *ptrparts;
-
-  int mult;
-  for (int j=0; j<20; j++){    
-    Point p;
-    mult=Prova.RndmMult();
-    //TClonesArray parts("Particle",mult);
+  Point hit0,hit1,hit2;
+  
+  for (int j=0; j<2; j++){
+    cout << "Event " << j << endl;
+    //mult=Prova.RndmMult();
     ptrparts->Clear("C");
-    Prova.SimulateEvent(p,parts);
-    p.PrintStatus();
+    gen->SimulateEvent(parts);
+    gen->GetGenerationPoint().PrintStatus();
     for(int i=0; i<parts.GetEntries();i++){
-      Particle* a=(Particle*) ptrparts->At(i);
-      cout<<"theta della particella"<<i<<": "<<a->GetTheta()<<endl;
+      cout<<"Particle " << i << endl;
+      Particle* a= (Particle*) ptrparts->At(i);
+      a->PrintStatus();
+      hit0=prop->Propagate(*a,0);
+      a->PrintStatus();
+      prop->MultipleScatter(*a);
+      hit1=prop->Propagate(*a,1);
+      a->PrintStatus();
+      prop->MultipleScatter(*a);
+      hit2=prop->Propagate(*a,2);
+      a->PrintStatus();
+      cout << "\n \n";
     }
+    cout << "\n \\-------------------------------------\\ \n";
+
   }
+  delete gen;
+  prop->Destroy();
+  cout << "ho finito";
 }
 
 TH1F* maniphist(){

@@ -11,47 +11,30 @@
 
 
 ClassImp(Generator)
-
-
-Generator::Generator():
-   TObject(),
-   fMult(0),
-   fXYrms(0.),
-   fZrms(0.),
-   fPsdrapRng(0.),
-   fSeed(0.),
-   fDist(false),
-   fEtaDist(NULL),
-   fMultDist(NULL)
- {
- //default constructor
- }
  
+Generator::Generator(int mult, double xyrms, double zrms, double psdraprng):
+TObject(),
+  fMult(mult),
+  fXYrms(xyrms),
+  fZrms(zrms),
+  fDist(false),
+  fPsdrapRng(psdraprng),
+  fEtaDist(NULL),
+  fMultDist(NULL),
+  fGenP(0,0,0)
+{
+  
+}
  
-Generator::Generator(double seed, int mult, double xyrms, double zrms, double psdraprng):
-   TObject(),
-   fMult(mult),
-   fXYrms(xyrms),
-   fZrms(zrms),
-   fSeed(seed),
-   fDist(false),
-   fPsdrapRng(psdraprng),
-   fEtaDist(NULL),
-   fMultDist(NULL)
-   {
- 			gRandom->SetSeed(fSeed);
-   }
- 
-Generator::Generator(double seed, double xyrms, double zrms,TH1F* multdist, TH1F* etadist):
+Generator::Generator(double xyrms, double zrms,TH1F* multdist, TH1F* etadist):
    TObject(),
    fXYrms(xyrms),
    fZrms(zrms),
-   fSeed(seed),
    fPsdrapRng(0.),
    fMult(0),
-   fDist(true)
+   fDist(true),
+   fGenP(0,0,0)
    {
- 			gRandom->SetSeed(fSeed);
  			fEtaDist=etadist;
  			fMultDist=multdist;
    }
@@ -61,10 +44,6 @@ Generator::~Generator(){
 	cout<<"default destructor"<<endl;
 }
 
-
-void Generator::SetSeed(double seed){
-	fSeed=seed;
-}
 
 void Generator::SetMult(double mult){
 	fMult=mult;
@@ -82,28 +61,25 @@ void Generator::SetPsdrapRng(double psdraprng){
 	fPsdrapRng=psdraprng;
 }
 
-void Generator::SimulateEvent(Point &collpoint, TClonesArray &genparts){
-	double x,y,z,eta,theta,phi;
-	x=gRandom->Gaus(0,fXYrms);
-  y=gRandom->Gaus(0,fXYrms);
-  z=gRandom->Gaus(0,fZrms);
-  
-	if (fMult>0){
-		collpoint=Point(x,y,z);
-		for(int j =0;j<fMult;j++){
-			if (fDist) eta=fEtaDist->GetRandom(); 
-			else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
-			theta=PsdrapInv(eta);
-			phi=2*acos(-1)*gRandom->Rndm();
-			new(genparts[j]) Particle(x,y,z,theta,phi);
-	 }
-	}
-	else {
+void Generator::SimulateEvent(TClonesArray &genparts){
+  double eta,theta,phi;
+  fGenP=Point(gRandom->Gaus(0,fXYrms),gRandom->Gaus(0,fXYrms),gRandom->Gaus(0,fZrms));
+
+  if (fMult>0){
+    for(int j =0;j<fMult;j++){
+      if (fDist) eta=fEtaDist->GetRandom(); 
+      else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
+      theta=PsdrapInv(eta);
+      phi=2*acos(-1)*gRandom->Rndm();
+      new(genparts[j]) Particle(fGenP,theta,phi);
+    }
+  }
+  else {
 	 if (fDist) cout<<"Multiplicity not extracted, try RndmMult()"<<endl;
 	 cout<<"0 produced particles"<<endl;;
 	 return;
   }
-	
+  
 }
 /*
 void Generator::SaveParticlesToFile(TString filename){
@@ -135,10 +111,6 @@ int Generator::RndmMult(){
 	return fMult;
 }
 
-
-
-
- 
- 
- 
- 
+Point Generator::GetGenerationPoint(){
+  return fGenP;
+}

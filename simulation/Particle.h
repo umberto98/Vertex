@@ -22,12 +22,18 @@ class Particle : public TObject{
   Point GetPoint() const;
   double GetTheta() const;
   double GetPhi() const;
+  
+  void PropagateToRadius(double r);
+  void Rotate(double thp, double php);
+  void PrintStatus();
  
  private:  // inizializzati quando generi la particella
 
   Point fPoint; 
   double fTheta;
   double fPhi;
+
+  void CartesianToPolar(double *cd);
 
   //coding convention, usare anche commenti a destra doppio il doppio slash a destra del data member, es //! non mi salva il file nello streamer che costruisce root
   ClassDef(Particle,2) // dice a root che questa è la versione 1, se cambio la classe, esempio aggiungendo un datamember metto un 2 nella ClassDef(); quando leggo un oggetto da file guarda la versione e mi legge l'header della versione corrispondente. Se metto 0 root non si cura di creare uno streamer, l'oggetto non ha persistenza
