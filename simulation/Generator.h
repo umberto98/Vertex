@@ -13,7 +13,7 @@ class Generator : public TObject{
   //////// 
  public:
   
-   Generator(int mult=2, double xyrms=0.01, double zrms=5.3, double psdraprng=1); //Generates 1 event with assigned multiplicity and uniform pseudorapidity diatribution on assigned range//
+   Generator(int mult=2, double xyrms=0.1, double zrms=53, double psdraprng=1); //Generates 1 event with assigned multiplicity and uniform pseudorapidity diatribution on assigned range//
     Generator(double xyRMS, double zRMS, TH1F* multdist, TH1F* etadist);  //Generates 1 event with assigned multiplicity and pseudorapidity distributions//
   //NB allo stato attuale si implementa solo la distribuzione in eta, DA MODIFICARE!!!!!!
   

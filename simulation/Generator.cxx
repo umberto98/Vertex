@@ -64,10 +64,10 @@ void Generator::SetPsdrapRng(double psdraprng){
 void Generator::SimulateEvent(TClonesArray &genparts){
   double eta,theta,phi;
   fGenP=Point(gRandom->Gaus(0,fXYrms),gRandom->Gaus(0,fXYrms),gRandom->Gaus(0,fZrms));
-
+  if(fMultDist) fMult=RndmMult();
   if (fMult>0){
     for(int j =0;j<fMult;j++){
-      if (fDist) eta=fEtaDist->GetRandom(); 
+      if (fEtaDist) eta=fEtaDist->GetRandom();
       else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
       theta=PsdrapInv(eta);
       phi=2*acos(-1)*gRandom->Rndm();

@@ -3,7 +3,7 @@
 
 #include "TObject.h"
 
-class Point{
+class Point : public TObject{
 
  public:
 

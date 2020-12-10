@@ -50,25 +50,30 @@ void Propagator::PrintStatus(){
        << "\nLunghezza secondo layer(cm): " << fLenght2 << endl;
 }
 
-Point Propagator::Propagate(Particle &particle, int layer){
+bool Propagator::Propagate(Particle &particle, Point &point, int layer){
   if(layer==0){
     particle.PropagateToRadius(rBp);
-    return particle.GetPoint();
+    point=particle.GetPoint();
+    return true;
   }
   else if(layer==1){
     particle.PropagateToRadius(rLay1);
-    if(IsHit(particle.GetPoint().fZ, fLenght1))
-      return particle.GetPoint();
-    return Point(0,0,0);
+    if(IsHit(particle.GetPoint().fZ, fLenght1)){
+      point=particle.GetPoint();
+      return true;
+    }
+    return false;
   }
   else if(layer==2){
     particle.PropagateToRadius(rLay2);
-    if(IsHit(particle.GetPoint().fZ, fLenght2))
-      return particle.GetPoint();
-    return Point(0,0,0);   
+    if(IsHit(particle.GetPoint().fZ, fLenght2)){
+      point=particle.GetPoint();
+      return true;
+    }
+    return false;   
   }
   else
-    return Point(0,0,0);
+    return false;
 }
 
 bool Propagator::IsHit(const double zpart, const double lenght){

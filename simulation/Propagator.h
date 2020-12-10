@@ -13,10 +13,10 @@ class Propagator : public TObject {
 
   static Propagator* Instance(const double rbp=30., const double r1=40., const double r2=70.,
 			      const double l1=270.0, const double l2=270.0,
-			      const double dbp=8, const double d1=2);
+			      const double dbp=8., const double d1=2.);
   static void Destroy();
 
-  Point Propagate(Particle &particle, const int layer);
+  bool Propagate(Particle &particle,Point &point, const int layer);
   void PrintStatus();
   void MultipleScatter(Particle &particle);
   void GaussianSmearing(Point &point, const double rphiRMS=0.1, const double zRMS=15., int layer=0);

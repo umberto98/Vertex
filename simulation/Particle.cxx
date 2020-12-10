@@ -69,7 +69,7 @@ void Particle::PropagateToRadius(double r){
 	a = x*sin(fTheta)*cos(fPhi)+y*sin(fTheta)*sin(fPhi);
 	b = (sin(fTheta)*cos(fPhi))*(sin(fTheta)*cos(fPhi))+(sin(fTheta)*sin(fPhi))*(sin(fTheta)*sin(fPhi));
 	t = (-a+pow((a*a-b*(x*x+y*y-r*r)),0.5))/b;
-	
+	if(t<0) cout << " ERROR "<< endl;
 	x+=sin(fTheta)*cos(fPhi)*t;
 	y+=sin(fTheta)*sin(fPhi)*t;
 	z+=cos(fPhi)*t;

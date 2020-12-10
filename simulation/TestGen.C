@@ -21,11 +21,11 @@ TH1F* maniphist();
 
 void TestGen(){ 
 
-  TH1D *teta = new TH1D("teta","prova",1000,1/100*TMath::ACos(-1),1/100*TMath::ACos(-1));
+  //TH1D *teta = new TH1D("teta","prova",1000,1/100*TMath::ACos(-1),1/100*TMath::ACos(-1));
   TFile F("kinem.root");
   TH1F *disteta = maniphist();
   TH1F *distmult = (TH1F*)F.Get("hmul");
-  Generator *gen = new Generator(100,0.01,5.3,2);
+  Generator *gen = new Generator(10,0.1,53,2);
   
   Propagator *prop = Propagator::Instance();
   prop->PrintStatus();
@@ -36,7 +36,7 @@ void TestGen(){
   Point hit0,hit1,hit2,genp;
 
   
-  for (int j=0; j<100; j++){
+  for (int j=0; j<10; j++){
     //cout << "Event " << j << endl;
     //mult=Prova.RndmMult();
     ptrparts->Clear("C");
@@ -44,24 +44,25 @@ void TestGen(){
     //gen->GetGenerationPoint().PrintStatus();
     genp=gen->GetGenerationPoint();
     for(int i=0; i<parts.GetEntries();i++){
-      //cout<<"Particle " << i << endl;
+      cout<<"Particle " << i << endl;
       Particle* a= (Particle*) ptrparts->At(i);
       
-      //a->PrintStatus();
+      a->PrintStatus();
       double ang = a->GetPhi();
       hit0=prop->Propagate(*a,0);
       
-      //a->PrintStatus();
-      prop->MultipleScatter(*a);
+      a->PrintStatus();
+
+      //prop->MultipleScatter(*a);
       hit1=prop->Propagate(*a,1);
-      //a->PrintStatus();
-      prop->MultipleScatter(*a);
+      a->PrintStatus();	
+      //prop->MultipleScatter(*a);
       hit2=prop->Propagate(*a,2);
-      //a->PrintStatus();
+      a->PrintStatus();
       
 
       double ang1 = a->GetPhi();
-      teta->Fill(ang1-ang);
+      //teta->Fill(ang1-ang);
       if(ang1-ang < -1.){
 	hit0.PrintStatus();
 	hit1.PrintStatus();
@@ -82,21 +83,21 @@ void TestGen(){
       
       //cout << a->GetTheta()<< endl;
       for(int i=0;i<3;i++){
-	//cout << ab[i]/bc[i] <<"  " <<  bc[i]/cd[i] <<endl;
+	cout << ab[i]/bc[i] <<"  " <<  bc[i]/cd[i] <<endl;
       }
       
       
-      //cout << "\n \n";
+      cout << "\n \n";
     }
-    // cout << "\n \\-------------------------------------\\ \n";
+    cout << "\n \\-------------------------------------\\ \n";
 
   }
   delete gen;
   prop->Destroy();
   cout << "ho finito";
-  TCanvas *c1 = new TCanvas("c1","c1",800,1000);
-  teta->SetMinimum(0);
-  teta->Draw("histo");
+  //TCanvas *c1 = new TCanvas("c1","c1",800,1000);
+  //teta->SetMinimum(0);
+  //teta->Draw("histo");
 }
 
 TH1F* maniphist(){

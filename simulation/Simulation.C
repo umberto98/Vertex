@@ -27,26 +27,22 @@ void Simulation(){
   F.Close();
 
   int mult;
-  Point genpoint;  
-  vector<double>* hitx1 = NULL;
-  vector<double>* hity1 = NULL;
-  vector<double>* hitz1 = NULL;
-  vector<double>* hitx2 = NULL;
-  vector<double>* hity2 = NULL;
-  vector<double>* hitz2 = NULL;
+  Point genpoint;
+  TClonesArray* ptrhits1 = new TClonesArray("Point",100);
+  TClonesArray& hits1 =*ptrhits1;
+  TClonesArray* ptrhits2 = new TClonesArray("Point",100);
+  TClonesArray& hits2 =*ptrhits2;
+  
   TFile hfile("htree.root","RECREATE");
   // dichiarazione del TTree
   TTree *tree = new TTree("T","TTree simulazione");
   tree->Branch("VertMult",&mult);
   tree->Branch("GenPoint",&genpoint);
-  tree->Branch("Hit1PointX",&hitx1);
-  tree->Branch("Hit1PointY",&hity1);
-  tree->Branch("Hit1PointZ",&hitz1);
-  tree->Branch("Hit2PointX",&hitx2);
-  tree->Branch("Hit2PointY",&hity2);
-  tree->Branch("Hit2PointZ",&hitz2);
+  tree->Branch("HitPoint1",&ptrhits1);
+  tree->Branch("HitPoint2",&ptrhits2);
+
   
-  Generator *gen = new Generator(100,0.01,5.3,2);
+  Generator *gen = new Generator(4,0.1,53,1);
   
   Propagator *prop = Propagator::Instance();
   prop->PrintStatus();
@@ -54,10 +50,10 @@ void Simulation(){
 
   TClonesArray* ptrparts = new TClonesArray("Particle",100);
   TClonesArray& parts = *ptrparts;
-  Point hit0,hit1,hit2,genp;
 
   
-  for (int j=0; j<100; j++){
+  for (int j=0; j<100000; j++){
+    Point genp;
     //cout << "Event " << j << endl;
     ptrparts->Clear("C");
     gen->SimulateEvent(parts);
@@ -65,29 +61,38 @@ void Simulation(){
     //mult=gen->GetMult(); Da Implementare
     mult=2;
     genpoint=gen->GetGenerationPoint();
-    
+    int m1=0, m2=0;
+    ptrhits1->Clear("C");
+    ptrhits2->Clear("C");
+
     for(int i=0; i<parts.GetEntries();i++){
+      Point hit0,hit1,hit2;
+      
       //cout<<"Particle " << i << endl;
+      
       Particle* a= (Particle*) ptrparts->At(i);  
       //a->PrintStatus();
+      if(prop->Propagate(*a,hit0,0)){
+	prop->MultipleScatter(*a);
+	//a->PrintStatus();
+      }
       
-      hit0=prop->Propagate(*a,0);
-      prop->MultipleScatter(*a);
-      //a->PrintStatus();
+      if(prop->Propagate(*a,hit1,1)){
+	prop->GaussianSmearing(hit1,0.03,0.12,1);
+	new(hits1[m1]) Point(hit1.fX,hit1.fY,hit1.fZ);
+
+	//new(hits1[m1]) Point(hit1);
+	m1++;
+	prop->MultipleScatter(*a);
+	//a->PrintStatus();
+      }
       
-      hit1=prop->Propagate(*a,1);
-      prop->MultipleScatter(*a);
-      //a->PrintStatus();
-      hitx1->push_back(hit1.fX);
-      hity1->push_back(hit1.fY);
-      hitz1->push_back(hit1.fZ);
-      
-      hit2=prop->Propagate(*a,2);
-      //a->PrintStatus();
-      hitx2->push_back(hit2.fX);
-      hity2->push_back(hit2.fY);
-      hitz2->push_back(hit2.fZ);
-      
+      if(prop->Propagate(*a,hit2,2)){
+	prop->GaussianSmearing(hit2,0.03,0.12,2);
+	new(hits2[m2]) Point(hit2.fX,hit2.fY,hit2.fZ);
+	m2++;
+	//a->PrintStatus();
+      }   
       //cout << "\n \n";
     }
     // cout << "\n \\-------------------------------------\\ \n";
