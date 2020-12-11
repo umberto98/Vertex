@@ -13,8 +13,8 @@
 //da togliere alla fine
 #include <TCanvas.h>
 
-const int nEV = 100000;
-const bool DISTR = true;
+const int nEV = 1000000;
+const bool DISTR = false;
 const bool mSCAT = true;
 const bool SMEAR = true;
 const double XYSMEAR = 0.03;
@@ -27,9 +27,13 @@ const int LAYER2 = 2;
 TH1F* maniphist(double range);
 
 double TestSim(){
+  
+  //TH1F *thetahisto = new TH1F("thetahisto","Variazione direzione multiple scatter",1000,-0.01,0.01);
+  //TH1F *phiris = new TH1F("phiris","resolution in phi",1000,-0.01,0.01);
+  TH1F *multout1 = new TH1F("multout1","perdita di particelle layer1", 41,-0.5,40.5);
+  TH1F *multout2 = new TH1F("multout2","perdita di particelle layer2", 41,-0.5,40.5);
 
-  TH1F *phiris = new TH1F("phiris","risolution in phi",1000,-0.01,0.01);
-  TH1F *multout = new TH1F("multout","perdita di particelle", 100,0,100);
+  
   gRandom->SetSeed(1);
   //inizializzo il Generator
   if(DISTR){
@@ -41,49 +45,30 @@ double TestSim(){
     Generator *gen = Generator::InstanceG(0.1,53.,distmult,disteta); 
   }
 
-  Generator *gen = Generator::InstanceG(0.1,53.,1.,10);
+  Generator *gen = Generator::InstanceG(0.1,53.,2.,15);
   gen->PrintStatus();
   //inizializzo il propagator
   Propagator *prop = Propagator::Instance();
   prop->PrintStatus();
-  
-  //inizializzazione variabili per TTree
-  int mult;
-  Point genpoint;
-  TClonesArray* ptrhits1 = new TClonesArray("Point",100);
-  TClonesArray& hits1 =*ptrhits1;
-  TClonesArray* ptrhits2 = new TClonesArray("Point",100);
-  TClonesArray& hits2 =*ptrhits2;
-
-  //Creo il TTree e relativo file
-  TFile hfile("simulation.root","RECREATE");
-  // dichiarazione delle branch TTree
-  TTree *treep = new TTree("treep","TTree simulazione");
-  treep->Branch("VertMult",&mult);
-  treep->Branch("GenPoint",&genpoint);
-  treep->Branch("HitPoint1",&ptrhits1);
-  treep->Branch("HitPoint2",&ptrhits2);
+ 
 
   //Creo un vettore di particelle
   TClonesArray* ptrparts = new TClonesArray("Particle",100);
   TClonesArray& parts = *ptrparts;
 
-
-
+  Point genpoint;
+  int mult;
+  int l=0;
   /////simulazione////////
-  int fivepercent = ceil(float(nEV-1)/20);
-  
+  int fivepercent =(nEV-1)/20;
+  cout << "inizio la simulazione ";
   for (int ev=0; ev<nEV; ev++){   
-    if(ev != 0 && ev % fivepercent == 0) cout  << " - "<< 100 * float(ev)/nEV << "%" ; 
-
-    ptrparts->Clear("C");
-    ptrhits1->Clear("C");
-    ptrhits2->Clear("C");
-
+    if(ev != 0 && ev % fivepercent == 0) cout  << " - "<< 100 * ev/nEV << "%" ; 
+    parts.Clear("C");
     gen->SimulateEvent(parts);
     mult=gen->GetMult();
     genpoint=gen->GetGenerationPoint();
-
+    
     //cout << "Event " << ev << endl;
     //gen->GetGenerationPoint().PrintStatus();
 
@@ -108,11 +93,10 @@ double TestSim(){
 	if(mSCAT)
 	  prop->MultipleScatter(*part);
 	if(SMEAR)
-	  prop->GaussianSmearing(hit1,XYSMEAR,ZSMEAR,LAYER1);
-	new(hits1[m1]) Point(hit1);	
+	  prop->GaussianSmearing(hit1,XYSMEAR,ZSMEAR,LAYER1);	
 	m1++;
-	phi1=hit1.GetPhi();
-	temp=true;
+	//phi1=hit1.GetPhi();
+	//temp=true;
 	//theta2=part->GetPhi();
       }
       //part->PrintStatus();
@@ -126,9 +110,9 @@ double TestSim(){
       if(prop->Propagate(*part,hit2,LAYER2)){
 	if(SMEAR)
 	  prop->GaussianSmearing(hit2,XYSMEAR,ZSMEAR,LAYER2);
-	new(hits2[m2]) Point(hit2);
 	m2++;
-	
+
+	/*
 	phi2=hit2.GetPhi();
 	if(temp){
 	  double dphi=phi2-phi1;
@@ -137,8 +121,8 @@ double TestSim(){
 	  if(dphi<-6)
 	    dphi+=2*TMath::ACos(-1);
 	  phiris->Fill(dphi);
-
 	  }
+	*/
 	//Test per vedere se i punti sono allineati
 	/*
 	double ab[3], bc[3], cd[3];
@@ -160,22 +144,30 @@ double TestSim(){
       
       
       //part->PrintStatus();
-      
+     
       // cout << "\n --- \n";
-    }    
-    //cout << "\n \\-------------------------------------\\ \n";
-    treep->Fill();    
+    }
+    multout1->Fill(mult-m1);
+    multout2->Fill(mult-m2);
+    //cout << "\n \\-------------------------------------\\ \n";   
   }
+  /*
   TCanvas *c1 = new TCanvas("c1","c1",800,1000);
   phiris->SetMinimum(0);
   phiris->Draw("histo");
+  */
+  TCanvas *c2 = new TCanvas("c2","c2",800,1000);
+  multout1->SetMinimum(0);
+  multout2->SetLineColor(kRed);
+  multout1->Draw("histo");
+  multout2->Draw("histosame");
+
+  
   //distruggo generator e propagator
   gen->Destroy();
   prop->Destroy();
-  
+
   // Close and write file.
-  hfile.Write();
-  hfile.Close();
   
   cout << "\n";
   return 0;

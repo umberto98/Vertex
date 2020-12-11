@@ -4,26 +4,30 @@
 #include <TFile.h>
 #include <TBranch.h>
 #include <TH1F.h>
+#include <TRandom3.h>
 #include "Point.h"
 #include "Particle.h"
 #include "Generator.h"
 #include "Propagator.h"
 
-const int nEV = 10000;
+const int nEV = 100000;
 const bool DISTR = true;
 const bool mSCAT = true;
 const bool SMEAR = true;
+const bool NOISE = true;
 const double XYSMEAR = 0.03;
 const double ZSMEAR = 0.12;
 const double etaRANGE = 2.;
 const int BEAMPIPE = 0;
 const int LAYER1 = 1;
 const int LAYER2 = 2;
+const double NS=100;
 
 TH1F* maniphist(double range);
 
-double Simulation(){
+double Simulation(int seed=1){
 
+  gRandom->SetSeed(seed);
   //inizializzo il Generator
   if(DISTR){
     TH1F *disteta = maniphist(etaRANGE);
@@ -43,9 +47,9 @@ double Simulation(){
   //inizializzazione variabili per TTree
   int mult;
   Point genpoint;
-  TClonesArray* ptrhits1 = new TClonesArray("Point",100);
+  TClonesArray* ptrhits1 = new TClonesArray("Point",300);
   TClonesArray& hits1 =*ptrhits1;
-  TClonesArray* ptrhits2 = new TClonesArray("Point",100);
+  TClonesArray* ptrhits2 = new TClonesArray("Point",300);
   TClonesArray& hits2 =*ptrhits2;
 
   //Creo il TTree e relativo file
@@ -112,7 +116,20 @@ double Simulation(){
       //a->PrintStatus();
       
       //cout << "\n";
-    }    
+    }
+    if(NOISE){
+      int pn1=gRandom->Gaus(NS,10);
+      Point p1(0,0,0);
+      int pn2=gRandom->Gaus(NS,10);
+      for(int n=m1;n<m1+pn1;n++){
+	prop->NoisePoint(p1,LAYER1);
+	new(hits1[m1]) Point(p1);
+      }
+      for(int n=m2;n<m2+pn2;n++){
+	prop->NoisePoint(p1,LAYER2);
+	new(hits2[m2]) Point(p1);
+      }
+    }
     // cout << "\n \\-------------------------------------\\ \n";
     treep->Fill();    
   }

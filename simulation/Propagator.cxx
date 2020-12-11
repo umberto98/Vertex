@@ -113,7 +113,29 @@ void Propagator::GaussianSmearing(Point &point, const double rphiRMS, const doub
 	  point.fZ+=dz;
 	else{
 	  point.fZ-=dz/2;
-	  cout << "Punto fuori dal rivelatore dopo aver applicato lo smearing\n";
+	  //cout << "Punto fuori dal rivelatore dopo aver applicato lo smearing\n";
 	}
 	point.SetPhi(point.GetPhi()+dphi);
+}
+
+//____________________________________________________________________
+void Propagator::NoisePoint(Point &point, int layer){
+  double r,lenght;
+  if (layer==1){
+    r=rLay1;
+    lenght=fLenght1;
+  }
+  else if (layer==2){
+    r=rLay2;
+    lenght=fLenght2;
+  }
+  else {
+    cout<<"invalid layer"<<endl;
+    return;
+  }
+  point.fX=0;
+  point.fY=0;
+  point.fZ=(gRandom->Rndm())*lenght-lenght/2;
+  point.SetR(r);
+  point.SetPhi(2*TMath::ACos(-1)*gRandom->Rndm());
 }

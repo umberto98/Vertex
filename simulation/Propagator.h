@@ -36,6 +36,9 @@ class Propagator : public TObject {
   // lo smearing gaussiano al punto passato per riferimento
   void GaussianSmearing(Point &point, const double rphiRMS=0.1, const double zRMS=15., int layer=0);
 
+  // Dato un punto e il layer, posiziona il punto in modo casuale sul layer
+  void NoisePoint(Point &point, int layer);
+  
  private:
 
   //costruttore, distruttore... privati per creare classe singleton
