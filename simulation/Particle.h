@@ -1,42 +1,60 @@
-#ifndef PARTICLE_H  //serve a non ricompilare ogni volta che viene chiamata la classe, il compilatore deve includere l'header una volta sola
+#ifndef PARTICLE_H
 #define PARTICLE_H
-//è un eder file, vengono inclusi in implementazioni dell'header, oltre a funzioni stand-alone, come le macro
 
 #include "TObject.h"
 #include "Point.h"
 
 class Particle : public TObject{
-  /////////
-  //commento al codice
-  ////////
+
+  ////////////////////////////////////////////////////////////////
+  // Classe pubblica utilizzata per rappresentare una particella//
+  // con tre data member privati che rappresentano il suo stato //
+  // ->Posizione in cordinate cartesiane e direzione in         //
+  //   coordinate sferiche                                      //
+  // ->Varie funzioni che modificano lo stato della particella  //
+  ////////////////////////////////////////////////////////////////
+
+  
  public:
   
-  Particle();//inizializza tutti i datamember a 0
-  Particle(double x, double y, double z, double teta, double phi);//costruttore std, assegna valori a data member
-  Particle(Point p, double teta, double phi);
-  virtual ~Particle(); //da mettere solo se alloca memoria la classe
-  // le member function sono virtuali se possono essere implementato da classi figlie, posso chiamarle nella classe madre attraverso puntatori che puntano a classi figlie dove sono implementati
+  Particle(double x=0., double y=0., double z=0., double theta=0., double phi=0.);
+  Particle(Point p, double theta, double phi);
+  virtual ~Particle();
 
-//forse poi verranno tolti, per il momento restano lì...
+  // public methods
 
-  Point GetPoint() const;
-  double GetTheta() const;
-  double GetPhi() const;
-  
+  void PrintStatus() const;// stampa i data member della classe -> x,y,z,theta,phi
+  Point GetPoint() const;  // restituisce il datamember point -> posizione x,y,z
+  double GetTheta() const; // restituisce il datamember theta -> theta
+  double GetPhi() const;   // restituisce il datamember phi -> phi
+
+  // Funzione che modifica il data member point della particella
+  // la propaga fino ad una distanza r dall'asse z 
   void PropagateToRadius(double r);
+
+  // Funzione che modifica la direzione di propagazione della particella,
+  // se subisce una deviazione in thp e php rispetto alla sua direzione
+  // di propagazione
   void Rotate(double thp, double php);
-  void PrintStatus();
  
- private:  // inizializzati quando generi la particella
 
-  Point fPoint; 
-  double fTheta;
-  double fPhi;
+ private:
 
+  // private methods
+
+  // Data la terna cd che rappresenta la direzione di propagazione
+  // in coordinate cartesiane, modifica i datamember della particella
+  // theta e phi 
   void CartesianToPolar(double *cd);
 
-  //coding convention, usare anche commenti a destra doppio il doppio slash a destra del data member, es //! non mi salva il file nello streamer che costruisce root
-  ClassDef(Particle,2) // dice a root che questa è la versione 1, se cambio la classe, esempio aggiungendo un datamember metto un 2 nella ClassDef(); quando leggo un oggetto da file guarda la versione e mi legge l'header della versione corrispondente. Se metto 0 root non si cura di creare uno streamer, l'oggetto non ha persistenza
+  // private data member
+  
+  Point fPoint;  // Punto in cui si trova la particella in coordinate cartesiane
+  double fTheta; // Angolo polare [0,pi] -> direzione di propagazione
+  double fPhi;   // Angolo azimutale [0,2pi] -> direzione di propagazione
+
+  
+  ClassDef(Particle,2)
     };
-//solitamente non c'è il punto e virgola, nell'header sì 
+ 
 #endif
