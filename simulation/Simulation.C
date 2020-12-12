@@ -10,7 +10,7 @@
 #include "Generator.h"
 #include "Propagator.h"
 
-const int nEV = 100000;
+const int nEV = 1000000;
 const bool DISTR = true;
 const bool mSCAT = true;
 const bool SMEAR = true;
@@ -29,16 +29,17 @@ double Simulation(int seed=1){
 
   gRandom->SetSeed(seed);
   //inizializzo il Generator
+  TH1F *etadist = maniphist(etaRANGE);
   if(DISTR){
-    TH1F *disteta = maniphist(etaRANGE);
     TFile F("kinem.root");
     TH1F *distmult = (TH1F*)F.Get("hmul");
     distmult->SetDirectory(0);
     F.Close();
-    Generator *gen = Generator::InstanceG(0.1,53.,distmult,disteta); 
+    Generator *gen = Generator::InstanceG(0.1,53.,distmult,etadist); 
+    //Generator *gen = Generator::InstanceG(0.1,53.,distmult,disteta); 
   }
 
-  Generator *gen = Generator::InstanceG();
+  Generator *gen = Generator::InstanceG(0.1,53.,15,etadist);
   gen->PrintStatus();
   //inizializzo il propagator
   Propagator *prop = Propagator::Instance();

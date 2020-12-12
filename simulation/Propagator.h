@@ -18,7 +18,7 @@ class Propagator : public TObject {
   //funzione statica per rendere la classe singleton
   static Propagator* Instance(const double rbp=30., const double r1=40., const double r2=70.,
 			      const double l1=270.0, const double l2=270.0,
-			      const double dbp=8., const double d1=2.);
+			      const double dbp=0.8, const double d1=0.2);
   
   static void Destroy(); // funzione per eliminare l'ogetto Propagator
   void PrintStatus() const;// stampa lo stato del Propagator->geometria rivelatore

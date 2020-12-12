@@ -8,20 +8,36 @@ ClassImp(Generator)
 Generator* Generator::fgInstance = NULL;
 
 //________________________________________________________________
-Generator::Generator(double xyrms, double zrms, double psdraprng, int mult):
+Generator::Generator(const double xyrms, const double zrms,
+		     const int mult, const double etarange):
   TObject(),
   fGenP(),
   fXYrms(xyrms),
   fZrms(zrms),
-  fPsdrapRng(psdraprng),
+  fPsdrapRng(etarange),
   fMult(mult),
-  fEtaDist(NULL),
+  fMultDist(NULL),
+  fEtaDist(NULL){
+  // standard constructor
+  }
+  
+//________________________________________________________________
+Generator::Generator(const double xyrms, const double zrms,
+		     const int mult, const TH1F* etadist):
+  TObject(),
+  fGenP(),
+  fXYrms(xyrms),
+  fZrms(zrms),
+  fPsdrapRng(0.),
+  fMult(mult),
   fMultDist(NULL){
   // standard constructor
+  fEtaDist=etadist;
 }
 
 //__________________________________________________________________
-Generator::Generator(double xyrms, double zrms,TH1F* multdist, TH1F* etadist):
+Generator::Generator(const double xyrms, const double zrms,
+		     const TH1F* multdist, const TH1F* etadist):
   TObject(),
   fGenP(),
   fXYrms(xyrms),
@@ -39,17 +55,17 @@ Generator::~Generator(){
 }
 
 //_________________________________________________________________
-Generator* Generator::InstanceG(double xyrms, double zrms,
-				 double psdraprng, int mult){
+Generator* Generator::InstanceG(const double xyrms, const double zrms,
+			        const int mult, const TH1F* etadist){
   if(!fgInstance){
-    fgInstance = new Generator(xyrms, zrms, psdraprng, mult);
+    fgInstance = new Generator(xyrms, zrms, mult, etadist);
   }
   return fgInstance;
 }
 
 //_________________________________________________________________
-Generator* Generator::InstanceG(double xyrms, double zrms,
-				 TH1F* multdist, TH1F* etadist){
+Generator* Generator::InstanceG(const double xyrms, const double zrms,
+				const TH1F* multdist,const TH1F* etadist){
   if(!fgInstance){
     fgInstance = new Generator(xyrms, zrms, multdist, etadist);
   }
@@ -82,8 +98,9 @@ void Generator::SimulateEvent(TClonesArray &genparts){
   if(fMultDist) fMult= fMultDist->GetRandom();
   if (fMult>0){
     for(int j =0;j<fMult;j++){
-      if (fEtaDist) eta=fEtaDist->GetRandom();
-      else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
+      eta=fEtaDist->GetRandom();
+      //if (fEtaDist) eta=fEtaDist->GetRandom();
+      //else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
       theta=PsdrapInv(eta);
       phi=2*acos(-1)*gRandom->Rndm();
       new(genparts[j]) Particle(fGenP,theta,phi);
@@ -104,7 +121,7 @@ void Generator::PrintStatus() const{
 	 << "\nPseudorapidità dalla distribuzione: " << fEtaDist->GetTitle() << "\n\n\n";
   else
     cout << "\nMolteplicità fissata a: " << fMult
-	 << "\nRange pseudorapidità: " << fPsdrapRng << "\n\n\n";
+	 << "\nPseudorapidità dalla distribuzione " << fEtaDist->GetTitle() << "\n\n\n";
 }
 
 //_____________________________________________________________

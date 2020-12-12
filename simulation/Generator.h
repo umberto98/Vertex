@@ -15,10 +15,12 @@ class Generator : public TObject{
 
  public:
 
-  static Generator* InstanceG(double xyrms=0.1, double zrms=53.,
-			      double psdraprng=1., int mult=2);
-  static Generator* InstanceG(double xyrms, double zrms,
-			      TH1F* multdist, TH1F* etadist);
+  static Generator* InstanceG(const double xyrms=0.1, const double zrms=53,
+			      const int mult=15, const double etarange=2.);
+  static Generator* InstanceG(const double xyrms, const double zrms,
+			      const int mult, const TH1F* etadist);
+  static Generator* InstanceG(const double xyrms, const double zrms,
+			      const TH1F* multdist, const TH1F* etadist);
   
   static void Destroy(); // Permettere di distruggere l'oggetto ad istanza singola
 
@@ -40,8 +42,9 @@ class Generator : public TObject{
  private:
 
   //Costruttori, distruttori privati
-  Generator(double xyrms, double zrms, double psdraprng, int mult); //Generates 1 event with assigned multiplicity and uniform pseudorapidity diatribution on assigned range//
-  Generator(double xyRMS, double zRMS, TH1F* multdist, TH1F* etadist);  //Generates 1 event with assigned multiplicity and pseudorapidity distributions//
+  Generator(const double xyrms, const double zrms, const int mult,const double etarange);
+  Generator(const double xyrms, const double zrms, const int mult,const TH1F* etadist); //Generates 1 event with assigned multiplicity and uniform pseudorapidity diatribution on assigned range//
+  Generator(const double xyRMS, const double zRMS,const TH1F* multdist, const TH1F* etadist);  //Generates 1 event with assigned multiplicity and pseudorapidity distributions//
 
   Generator(const Generator& rec);
   Generator& operator=(const Generator &source);
@@ -58,8 +61,8 @@ class Generator : public TObject{
   double fZrms;       //rms di z del punto di generazione
   double fPsdrapRng;  //Range in pseudorapidità
   int fMult;          //molteplicità evento
-  TH1F *fEtaDist;     //distribuzione in pseudorapidità
-  TH1F *fMultDist;     //distribuzione in molteplicità
+  const TH1F *fEtaDist;     //distribuzione in pseudorapidità
+  const TH1F *fMultDist;     //distribuzione in molteplicità
 
   
   ClassDef(Generator,1) 
