@@ -67,7 +67,7 @@ void Particle::PropagateToRadius(double r){
   //trovo le nuove coordinate propagando la particella ad una distanza r da z
   x+=Sin(fTheta)*Cos(fPhi)*t;
   y+=Sin(fTheta)*Sin(fPhi)*t;
-  z+=Cos(fPhi)*t;
+  z+=Cos(fTheta)*t;
   //aggiorno il datamember punto di particle
   fPoint.fX=x;
   fPoint.fY=y;

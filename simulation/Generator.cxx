@@ -95,7 +95,7 @@ void Generator::SimulateEvent(TClonesArray &genparts){
   fGenP.fY=gRandom->Gaus(0,fXYrms);
   fGenP.fZ=gRandom->Gaus(0,fZrms);
   
-  if(fMultDist) fMult= fMultDist->GetRandom();
+  if(fMultDist) fMult=(int) (fMultDist->GetRandom()+0.5);
   if (fMult>0){
     for(int j =0;j<fMult;j++){
       eta=fEtaDist->GetRandom();

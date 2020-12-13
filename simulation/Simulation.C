@@ -9,52 +9,52 @@
 #include "Particle.h"
 #include "Generator.h"
 #include "Propagator.h"
-
-const int nEV = 1000000;
-const bool DISTR = true;
-const bool mSCAT = true;
-const bool SMEAR = true;
-const bool NOISE = true;
-const double XYSMEAR = 0.03;
-const double ZSMEAR = 0.12;
-const double etaRANGE = 2.;
-const int BEAMPIPE = 0;
-const int LAYER1 = 1;
-const int LAYER2 = 2;
-const double NS=100;
+#include "Reconstruction.h"
+#include "Const.h"
 
 TH1F* maniphist(double range);
 
-double Simulation(int seed=1){
+double Simulation(const int seed=1, const char* title="simulation.root"){
 
   gRandom->SetSeed(seed);
   //inizializzo il Generator
-  TH1F *etadist = maniphist(etaRANGE);
-  if(DISTR){
-    TFile F("kinem.root");
-    TH1F *distmult = (TH1F*)F.Get("hmul");
-    distmult->SetDirectory(0);
-    F.Close();
-    Generator *gen = Generator::InstanceG(0.1,53.,distmult,etadist); 
-    //Generator *gen = Generator::InstanceG(0.1,53.,distmult,disteta); 
+  TH1F *etadist = maniphist(gETARANGE);
+  if(gDISTR!=0){
+    TH1F *distmult;
+    if(gDISTR==1){
+      TFile F("kinem.root");
+      distmult = (TH1F*)F.Get("hmul");
+      distmult->SetDirectory(0);
+      F.Close();
+    }else{
+      TFile F("mult.root");
+      distmult = (TH1F*)F.Get("hmul");
+      distmult->SetDirectory(0);
+      F.Close();
+    }
+    Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,distmult,etadist);  
   }
 
-  Generator *gen = Generator::InstanceG(0.1,53.,15,etadist);
+  Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,15,etadist);
+  //Generator *gen = Generator::InstanceG();
   gen->PrintStatus();
   //inizializzo il propagator
   Propagator *prop = Propagator::Instance();
   prop->PrintStatus();
+  //inizializzo il reconstruction
+  Reconstruction *rec = Reconstruction::Instance();
+  //rec->PrintStatus();
   
   //inizializzazione variabili per TTree
   int mult;
   Point genpoint;
-  TClonesArray* ptrhits1 = new TClonesArray("Point",300);
+  TClonesArray* ptrhits1 = new TClonesArray("Point",100);
   TClonesArray& hits1 =*ptrhits1;
-  TClonesArray* ptrhits2 = new TClonesArray("Point",300);
+  TClonesArray* ptrhits2 = new TClonesArray("Point",100);
   TClonesArray& hits2 =*ptrhits2;
 
   //Creo il TTree e relativo file
-  TFile hfile("simulation.root","RECREATE");
+  TFile hfile(title,"RECREATE");
   // dichiarazione delle branch TTree
   TTree *treep = new TTree("treep","TTree simulazione");
   treep->Branch("VertMult",&mult);
@@ -69,10 +69,10 @@ double Simulation(int seed=1){
 
 
   /////simulazione////////
-  int fivepercent = ceil(float(nEV-1)/20);
+  int fivepercent = ceil(float(gNEV-1)/20);
   
-  for (int ev=0; ev<nEV; ev++){   
-    if(ev != 0 && ev % fivepercent == 0) cout  << " - "<< 100 * float(ev)/nEV << "%" ; 
+  for (int ev=0; ev<gNEV; ev++){   
+    if(ev != 0 && ev % fivepercent == 0) cout  << " - "<< 100 * float(ev)/gNEV << "%" ; 
 
     ptrparts->Clear("C");
     ptrhits1->Clear("C");
@@ -93,24 +93,24 @@ double Simulation(int seed=1){
       //cout<<"Particle " << p << endl;
       //part->PrintStatus();
       
-      if(prop->Propagate(*part,hit0,BEAMPIPE))
-	if(mSCAT)
+      if(prop->Propagate(*part,hit0,gBEAMPIPE))
+	if(gMSCAT)
 	  prop->MultipleScatter(*part);     
       //a->PrintStatus();
       
-      if(prop->Propagate(*part,hit1,LAYER1)){
-	if(mSCAT)
+      if(prop->Propagate(*part,hit1,gLAYER1)){
+	if(gMSCAT)
 	  prop->MultipleScatter(*part);
-	if(SMEAR)
-	  prop->GaussianSmearing(hit1,XYSMEAR,ZSMEAR,LAYER1);
+	if(gSMEAR)
+	  rec->GaussianSmearing(hit1,gLAYER1);
 	new(hits1[m1]) Point(hit1);	
 	m1++;	
       }
       //a->PrintStatus();
       
-      if(prop->Propagate(*part,hit2,LAYER2)){
-	if(SMEAR)
-	  prop->GaussianSmearing(hit2,XYSMEAR,ZSMEAR,LAYER2);
+      if(prop->Propagate(*part,hit2,gLAYER2)){
+	if(gSMEAR)
+	  rec->GaussianSmearing(hit2,gLAYER2);
 	new(hits2[m2]) Point(hit2);
 	m2++;
       }
@@ -118,19 +118,32 @@ double Simulation(int seed=1){
       
       //cout << "\n";
     }
-    if(NOISE){
-      int pn1=gRandom->Gaus(NS,10);
+    if(gNOISE){
       Point p1(0,0,0);
-      int pn2=gRandom->Gaus(NS,10);
-      for(int n=m1;n<m1+pn1;n++){
-	prop->NoisePoint(p1,LAYER1);
-	new(hits1[m1]) Point(p1);
+      for(int n=0;n<gNS;n++){
+	rec->NoisePoint(p1,gLAYER1);
+	new(hits1[n]) Point(p1);
       }
-      for(int n=m2;n<m2+pn2;n++){
-	prop->NoisePoint(p1,LAYER2);
-	new(hits2[m2]) Point(p1);
+      for(int n=0;n<gNS;n++){
+	rec->NoisePoint(p1,gLAYER2);
+	new(hits2[n]) Point(p1);
       }
     }
+    /*
+    if(gNOISE){
+      int pn1=gRandom->Gaus(gNS,10);
+      Point p1(0,0,0);
+      int pn2=gRandom->Gaus(gNS,10);
+      for(int n=m1;n<m1+pn1;n++){
+	prop->NoisePoint(p1,gLAYER1);
+	new(hits1[n]) Point(p1);
+      }
+      for(int n=m2;n<m2+pn2;n++){
+	prop->NoisePoint(p1,gLAYER2);
+	new(hits2[n]) Point(p1);
+      }
+    }
+    */
     // cout << "\n \\-------------------------------------\\ \n";
     treep->Fill();    
   }
@@ -138,6 +151,7 @@ double Simulation(int seed=1){
   //distruggo generator e propagator
   gen->Destroy();
   prop->Destroy();
+  rec->Destroy();
   
   // Close and write file.
   hfile.Write();

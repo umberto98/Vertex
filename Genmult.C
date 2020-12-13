@@ -1,0 +1,15 @@
+#include <TH1F.h>
+#include <Riostream.h>
+#include <TFile.h>
+void Genmult(){
+  
+  TFile hfile("mult.root","RECREATE");
+
+  TH1F *hmul = new TH1F("hmul","Molteplicità uniforme",82,-0.5,81.5);
+
+  for(int i=1;i<81;i++){
+    hmul->Fill(i,1);
+  }
+  hfile.Write();
+  hfile.Close();
+}

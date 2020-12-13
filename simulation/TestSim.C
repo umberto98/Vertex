@@ -13,8 +13,8 @@
 //da togliere alla fine
 #include <TCanvas.h>
 
-const int nEV = 100;
-const bool DISTR = false;
+const int nEV = 1000000;
+const bool DISTR = true;
 const bool mSCAT = false;
 const bool SMEAR = false;
 const double XYSMEAR = 0.03;
@@ -38,6 +38,9 @@ double TestSim(){
   TH1F *radius2 = new TH1F("radius2","raggio layer2", 100,0.,100.);
   TH1F *teta = new TH1F("teta","teta particella", 100,0,TMath::ACos(-1));
   //TH1F *multoutp = new TH1F("multoutp","perdita di particelle", 11,-5.5,5.5);
+  TH1F *etah = new TH1F("eta","eta particella", 100,-2.,2.);
+  TH1F *eta1 = new TH1F("eta1","eta1 particella", 100,-2.,2.);
+  TH1F *eta2 = new TH1F("eta2","eta2 particella", 100,-2.,2.);
   
   gRandom->SetSeed(1);
   //inizializzo il Generator
@@ -64,6 +67,10 @@ double TestSim(){
   Point genpoint;
   int mult;
   int l=0;
+  int counter1=0;
+  int counter2=0;
+  int counter3=0;
+  int counter0=0;
   /////simulazione////////
   int fivepercent =(nEV-1)/20;
   cout << "inizio la simulazione ";
@@ -79,20 +86,25 @@ double TestSim(){
     int m1=0, m2=0,m=0;
     for(int p=0; p<parts.GetEntries();p++){
       //double theta0=0,theta1=0,theta2=0;
-   
+      counter0++;
       double phi1=0,phi2=0;
       int temp=false;
+      double eta;
       Point hit0,hit1,hit2;
       Particle* part = (Particle*) ptrparts->At(p);
       teta->Fill(part->GetTheta());
+      eta=-TMath::Log(TMath::Tan(part->GetTheta()/2));
+      etah->Fill(eta);
       //theta0=part->GetPhi();
       //cout<<"Particle " << p << endl;
-      part->PrintStatus();
+      //part->PrintStatus();
  
-      if(prop->Propagate(*part,hit0,BEAMPIPE))
+      if(prop->Propagate(*part,hit0,BEAMPIPE)){
 	if(mSCAT)
 	  prop->MultipleScatter(*part);     
-      part->PrintStatus();
+	//part->PrintStatus();
+	
+      }
       //theta1=part->GetTheta();
       
       if(prop->Propagate(*part,hit1,LAYER1)){
@@ -105,8 +117,10 @@ double TestSim(){
 	phi1=hit1.GetPhi();
 	temp=true;
 	//theta2=part->GetPhi();
+	eta1->Fill(eta);
+	counter1++;
       }
-      part->PrintStatus();
+      //part->PrintStatus();
 
       /*
       if(theta1!=0)
@@ -119,7 +133,7 @@ double TestSim(){
 	  prop->GaussianSmearing(hit2,XYSMEAR,ZSMEAR,LAYER2);
 	m2++;
 	radius1->Fill(TMath::Sqrt(hit2.fX*hit2.fX+hit2.fY*hit2.fY));
-	
+	eta2->Fill(eta);
 	phi2=hit2.GetPhi();
 	if(temp){
 	  double dphi=phi2-phi1;
@@ -128,7 +142,10 @@ double TestSim(){
 	  if(dphi<-6)
 	    dphi+=2*TMath::ACos(-1);
 	  phiris->Fill(dphi);
-	  }
+	  counter2++;
+	}else{
+	  counter3++;
+	}
 	  
 	//Test per vedere se i punti sono allineati
 	/*
@@ -150,16 +167,16 @@ double TestSim(){
       }
        m++;
       
-      part->PrintStatus();
+       //part->PrintStatus();
      
-     cout << "\n --- \n";
+      //cout << "\n --- \n";
     }
     multout1->Fill(mult-m1);
     multout2->Fill(mult-m2);
     // multoutp->Fill(mult-m);
-    cout << "\n \\-------------------------------------\\ \n";   
+    // cout << "\n \\-------------------------------------\\ \n";   
   }
-  
+  cout << "0: "<< counter0<<" - 1: "<<counter1<<" - 2: "<< counter2<<" - 3: "<<counter3<<endl;
   TCanvas *c1 = new TCanvas("c1","c1",800,1000);
   phiris->SetMinimum(0);
   phiris->Draw("histo");
@@ -184,7 +201,15 @@ double TestSim(){
   TCanvas *c5 = new TCanvas("c5","c5",800,1000);
   teta->SetMinimum(0);
   teta->Draw("histo");
-    
+
+  TCanvas *c6 = new TCanvas("c6","c6",800,1000);
+  etah->SetMinimum(0);
+  etah->SetLineColor(kRed);
+  etah->Draw("histo");
+  eta1->Draw("histosame");
+  eta2->SetLineColor(kBlue);
+  eta2->Draw("histosame");
+  
   //distruggo generator e propagator
   gen->Destroy();
   prop->Destroy();

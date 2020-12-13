@@ -4,6 +4,7 @@
 #include "TObject.h"
 #include "Point.h"
 #include "Particle.h"
+#include "Const.h"
 #include <TClonesArray.h>
 #include <TH1F.h>
 
@@ -15,8 +16,8 @@ class Generator : public TObject{
 
  public:
 
-  static Generator* InstanceG(const double xyrms=0.1, const double zrms=53,
-			      const int mult=15, const double etarange=2.);
+  static Generator* InstanceG(const double xyrms=gXYRMS, const double zrms=gZRMS,
+			      const int mult=gMULT, const double etarange=gETARANGE);
   static Generator* InstanceG(const double xyrms, const double zrms,
 			      const int mult, const TH1F* etadist);
   static Generator* InstanceG(const double xyrms, const double zrms,

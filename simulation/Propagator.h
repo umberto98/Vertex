@@ -5,6 +5,7 @@
 #include <Riostream.h>
 #include "Particle.h"
 #include "Point.h"
+#include "Const.h"
 
 class Propagator : public TObject {
   /////////////////////////////////////////////////////////////////
@@ -16,9 +17,9 @@ class Propagator : public TObject {
  public:
 
   //funzione statica per rendere la classe singleton
-  static Propagator* Instance(const double rbp=30., const double r1=40., const double r2=70.,
-			      const double l1=270.0, const double l2=270.0,
-			      const double dbp=0.8, const double d1=0.2);
+  static Propagator* Instance(const double rbp=gRBP, const double r1=gRL1, const double r2=gRL2,
+			      const double l1=gLENL1, const double l2=gLENL2,
+			      const double dbp=gDEPBP, const double d1=gDEPL1);
   
   static void Destroy(); // funzione per eliminare l'ogetto Propagator
   void PrintStatus() const;// stampa lo stato del Propagator->geometria rivelatore
@@ -31,13 +32,7 @@ class Propagator : public TObject {
   // funzione che implementa il multiplescatter
   // ->modifica i datamember della particella
   void MultipleScatter(Particle &particle);
-
-  // Dati l'RMS rphi, e l' RMSz, e il layer applica
-  // lo smearing gaussiano al punto passato per riferimento
-  void GaussianSmearing(Point &point, const double rphiRMS=0.1, const double zRMS=15., int layer=0);
-
-  // Dato un punto e il layer, posiziona il punto in modo casuale sul layer
-  void NoisePoint(Point &point, int layer);
+  
   
  private:
 
