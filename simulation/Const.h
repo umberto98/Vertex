@@ -6,7 +6,7 @@
 //Struttura simulation->Variabili globali necessarie nel Simulation.C
 
 const int gNEV {1000000};		//Inizializza il numero di eventi della simulazione
-const int gDISTR {1};			//Inizializza la distribuzione in molteplicità:"0" fissa, "1" distribuzione assegnata, "2" distribuzione uniforme
+const int gDISTR {2};			//Inizializza la distribuzione in molteplicità:"0" fissa, "1" distribuzione assegnata, "2" distribuzione uniforme
 const bool gMSCAT {true};		//"true" scattering multiplo acceso,"false" scattering multiple spento
 const double gETARANGE{2.};		//Range in cui viene estretto eta(es se "2." allora -2.<eta<2.)
 const int gBEAMPIPE {0};		//Da non modificare, per comodità si associa alla beam pipe valore 0
@@ -37,13 +37,13 @@ const double gDEPL1 {0.2};		//Spessore primo layer (in mm)->non implementato
 //Struttura ...->Variabili globali che servono per la classe di ricostruzione...
 
 const bool gSMEAR {true};		//"true" smearing acceso, "false" smearing spento
-const bool gNOISE {true};		//"true" aggiunta di punti spuri, "false" non vengono aggiunti punti spuri
+const bool gNOISE {false};		//"true" aggiunta di punti spuri, "false" non vengono aggiunti punti spuri
 const int gNS {10};			//Quantità di punti spuri aggiunti
 
 
 //Struttura smearing->Variabili globali che servono per la classe Smearing.h
 
-const double gRPHISM {0.1};		//RMS in direzione rphi dello smearing (gaussiano)
+const double gRPHISM {0.03};		//RMS in direzione rphi dello smearing (gaussiano)
 const double gZSM {0.12};		//RMS in direzione z dello smearing (gaussiano)
 
 
