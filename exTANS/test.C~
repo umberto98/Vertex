@@ -1,0 +1,128 @@
+///macro di prova delle classi
+
+#include <Riostream.h>
+#include <TH1D.h>
+#include "Point.h"
+#include "Particle.h"
+#include <TClonesArray.h>
+
+void testPointA(){
+  cout << "TEST POINT CLASS \n"<< endl;
+
+  cout << "Default constructor of Point - punto1\n";
+  Point punto1;
+  cout << "Test delle funzioni sul Default constructor - punto1\n";
+  punto1.PrintStatus();
+  punto1.PrintCartesian();
+  punto1.PrintPolar();
+  
+  cout << "Standard constructor of Point - punto2\n";
+  Point punto2(5.,3.,4.,1.,1.);
+  cout << "Test delle funzioni sullo Standard constructor - punto2\n";
+  punto2.PrintStatus();
+  punto2.PrintCartesian();
+  punto2.PrintPolar();
+
+  cout << "Eguaglio punto1 a punto2 e stampo i datamember di punto 1\n";
+  punto1=punto2;
+  cout <<"fX " << punto1.fX << endl;
+  cout <<"fY " << punto1.fY << endl;
+  cout <<"fZ " << punto1.fZ << endl;
+  cout <<"fTeta " << punto1.fTeta << endl;
+  cout <<"fPhi " << punto1.fPhi << endl;
+
+  
+}
+
+void testPointB(){
+  cout << "TEST POINT CLASS ALLOCAZIONE DINAMICA\n"<< endl;
+
+  cout << "Default constructor of Point - punto1\n";
+  Point* punto1 = new Point();
+  cout << "Test delle funzioni sul Default constructor - punto1\n";
+  punto1->PrintStatus();
+  punto1->PrintCartesian();
+  punto1->PrintPolar();
+  
+  cout << "Standard constructor of Point - punto2\n";
+  Point* punto2 = new Point(5.,3.,4.,1.,1.);
+  cout << "Test delle funzioni sullo Standard constructor - punto2\n";
+  punto2->PrintStatus();
+  punto2->PrintCartesian();
+  punto2->PrintPolar();
+  
+  cout << "Eguaglio punto1 a punto2 e stampo i datamember di punto 1\n";
+  *punto1=*punto2;
+  cout <<"fX " << punto1->fX << endl;
+  cout <<"fY " << punto1->fY << endl;
+  cout <<"fZ " << punto1->fZ << endl;
+  cout <<"fTeta " << punto1->fTeta << endl;
+  cout <<"fPhi " << punto1->fPhi << endl;
+
+  delete punto1;
+  delete punto2;
+  
+}
+
+void testParticleA(){
+  cout << "TEST PARTICLE CLASS\n"<< endl;
+  Point punto(5.,3.,4.,1.,1.);
+  Point punto1(10.,6.,8.,2.,2.);
+  Point punto2(20.,6.,16.,4.,4.);
+
+  cout << "Default constructor of Particle - particella1\n";
+  Particle particella1;
+  cout << "fPoint: ";
+  particella1.GetPoint().PrintStatus();
+  cout << "fPointTemp: ";
+  particella1.GetPointTemp().PrintStatus();
+  cout << "fT: "<< particella1.GetTime() << endl;
+  cout << "Testo i Setter1\n";
+  particella1.SetPointTemp(punto);
+  particella1.SetTime(10.);
+  cout << "fPoint: ";
+  particella1.GetPoint().PrintStatus();
+  cout << "fPointTemp: ";
+  particella1.GetPointTemp().PrintStatus();
+  cout << "Testo i Setter2\n";
+  particella1.SetPointTemp(10.,6.,4.,1.,1.);
+  cout << "fPointTemp: ";
+  particella1.GetPointTemp().PrintStatus();
+  cout << "fT: "<< particella1.GetTime() << endl<<endl<<endl;
+
+  cout << "Standard constructor of Particle - particella2\n";
+  Particle particella2(5.,3.,4.,1.,1.,0.);
+  cout << "fPoint: ";
+  particella2.GetPoint().PrintStatus();
+  cout << "fPointTemp: ";
+  particella2.GetPointTemp().PrintStatus();
+  cout << "fT: "<< particella2.GetTime() << endl;
+  cout << "Testo i Setter\n";
+  particella2.SetPointTemp(10.,6.,4.,1.,1.);
+  cout << "fPointTemp: ";
+  particella2.GetPointTemp().PrintStatus();
+  cout << endl<<endl<<endl;
+  
+  cout << "Standard constructor of Particle - particella3\n";
+  Particle particella3(punto,1.);
+  cout << "fPoint: ";  
+  particella3.GetPoint().PrintStatus();
+  cout << "fPointTemp: ";
+  particella3.GetPointTemp().PrintStatus();
+  cout << "fT: "<< particella3.GetTime() << endl;
+  cout << "Testo i Setter\n";
+  particella3.SetPointTemp(punto1);
+  cout << "fPointTemp: ";
+  particella3.GetPointTemp().PrintStatus();
+  cout << endl<<endl<<endl;
+}
+
+void testParticleB(){
+  cout << "TEST TClonesArray" << endl;
+  TClonesArray *particles = new TClonesArray("Particles", 100);
+  for (int i = 0; i < 5; i++) {
+    new(particles[i]) Particle();
+  }
+  particles.Delete();
+  
+}
