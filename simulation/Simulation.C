@@ -28,23 +28,21 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
       F.Close();
     }else{
       TFile F("mult.root");
-      distmult = (TH1F*)F.Get("hmul");
+      distmult = (TH1F*)F.Get("hmulun");
       distmult->SetDirectory(0);
       F.Close();
     }
     Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,distmult,etadist);  
   }
 
-  Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,15,etadist);
-  //Generator *gen = Generator::InstanceG();
+  Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,15,etadist); //Inizializza il generator con molteplicità fissa al valore inserito
+  //Generator *gen = Generator::InstanceG();		//Inizializza il generator con molteplicità fissa e eta estratto uniformemente
   gen->PrintStatus();
   //inizializzo il propagator
-  Propagator *prop = Propagator::Instance();
+  Propagator *prop = Propagator::Instance();		//inizializza il Propagator standard
   prop->PrintStatus();
-  //inizializzo il reconstruction
-  Reconstruction *rec = Reconstruction::Instance();
-  //rec->PrintStatus();
-  
+
+
   //inizializzazione variabili per TTree
   int mult;
   Point genpoint;
@@ -69,10 +67,8 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
 
 
   /////simulazione////////
-  int fivepercent = ceil(float(gNEV-1)/20);
   
   for (int ev=0; ev<gNEV; ev++){   
-    if(ev != 0 && ev % fivepercent == 0) cout  << " - "<< 100 * float(ev)/gNEV << "%" ; 
 
     ptrparts->Clear("C");
     ptrhits1->Clear("C");
@@ -101,16 +97,12 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
       if(prop->Propagate(*part,hit1,gLAYER1)){
 	if(gMSCAT)
 	  prop->MultipleScatter(*part);
-	if(gSMEAR)
-	  rec->GaussianSmearing(hit1,gLAYER1);
 	new(hits1[m1]) Point(hit1);	
 	m1++;	
       }
       //a->PrintStatus();
       
       if(prop->Propagate(*part,hit2,gLAYER2)){
-	if(gSMEAR)
-	  rec->GaussianSmearing(hit2,gLAYER2);
 	new(hits2[m2]) Point(hit2);
 	m2++;
       }
@@ -118,32 +110,7 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
       
       //cout << "\n";
     }
-    if(gNOISE){
-      Point p1(0,0,0);
-      for(int n=0;n<gNS;n++){
-	rec->NoisePoint(p1,gLAYER1);
-	new(hits1[n]) Point(p1);
-      }
-      for(int n=0;n<gNS;n++){
-	rec->NoisePoint(p1,gLAYER2);
-	new(hits2[n]) Point(p1);
-      }
-    }
-    /*
-    if(gNOISE){
-      int pn1=gRandom->Gaus(gNS,10);
-      Point p1(0,0,0);
-      int pn2=gRandom->Gaus(gNS,10);
-      for(int n=m1;n<m1+pn1;n++){
-	prop->NoisePoint(p1,gLAYER1);
-	new(hits1[n]) Point(p1);
-      }
-      for(int n=m2;n<m2+pn2;n++){
-	prop->NoisePoint(p1,gLAYER2);
-	new(hits2[n]) Point(p1);
-      }
-    }
-    */
+
     // cout << "\n \\-------------------------------------\\ \n";
     treep->Fill();    
   }
@@ -151,7 +118,6 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
   //distruggo generator e propagator
   gen->Destroy();
   prop->Destroy();
-  rec->Destroy();
   
   // Close and write file.
   hfile.Write();
@@ -183,7 +149,9 @@ TH1F* maniphist(double range){
   Int_t nobins=b2-b1+1;
   Double_t step2 = (xhig-xlow)/nobins;
   cout << "Check: "<<step<<"; "<<step2<<endl;
-  TH1F* heta2 = new TH1F("hetadist","#eta distribution 2",nobins,xlow,xhig);
+  char titolo[50];
+  sprintf(titolo,"#eta distribution, range: %f",range);
+  TH1F* heta2 = new TH1F("hetadist",titolo,nobins,xlow,xhig);
   Int_t j=1;
   for(Int_t i=b1;i<=b2;i++)heta2->SetBinContent(j++,disteta->GetBinContent(i)); 
   return heta2;
