@@ -9,12 +9,11 @@
 #include "Particle.h"
 #include "Generator.h"
 #include "Propagator.h"
-#include "Reconstruction.h"
 #include "Const.h"
 
 TH1F* maniphist(double range);
 
-double Simulation(const int seed=1, const char* title="simulation.root"){
+void Simulation(const int seed=1, const char* title=gTITLES){
 
   gRandom->SetSeed(seed);
   //inizializzo il Generator
@@ -35,7 +34,7 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
     Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,distmult,etadist);  
   }
 
-  Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,15,etadist); //Inizializza il generator con molteplicità fissa al valore inserito
+  Generator *gen = Generator::InstanceG(gXYRMS,gZRMS,gMULT,etadist); //Inizializza il generator con molteplicità fissa al valore inserito
   //Generator *gen = Generator::InstanceG();		//Inizializza il generator con molteplicità fissa e eta estratto uniformemente
   gen->PrintStatus();
   //inizializzo il propagator
@@ -124,7 +123,6 @@ double Simulation(const int seed=1, const char* title="simulation.root"){
   hfile.Close();
 
   cout << "\n";
-  return 0;
   
 }
 

@@ -1,8 +1,12 @@
 
-*.root
 *.d
 *.so
 *.pcm
 *.C~
 *.h~
 *.cxx~
+*.png
+simulation/grafici/primapart.docx
+simulation/sim_multass_nonoise.root
+simulation/sim_multcost_nonoise.root
+simulation/sim_multunif_nonoise.root

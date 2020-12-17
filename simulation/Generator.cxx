@@ -93,14 +93,16 @@ void Generator::SimulateEvent(TClonesArray &genparts){
   double eta,theta,phi;
   fGenP.fX=gRandom->Gaus(0,fXYrms);
   fGenP.fY=gRandom->Gaus(0,fXYrms);
-  fGenP.fZ=gRandom->Gaus(0,fZrms);
+  if(!gZUNIF)
+    fGenP.fZ=gRandom->Gaus(0,fZrms);
+  else
+    fGenP.fZ=(gRandom->Rndm())*2*fZrms-fZrms;
   
   if(fMultDist) fMult=(int) (fMultDist->GetRandom()+0.5);
   if (fMult>0){
     for(int j =0;j<fMult;j++){
-      eta=fEtaDist->GetRandom();
-      //if (fEtaDist) eta=fEtaDist->GetRandom();
-      //else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
+      if (fEtaDist) eta=fEtaDist->GetRandom();
+      else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
       theta=PsdrapInv(eta);
       phi=2*acos(-1)*gRandom->Rndm();
       new(genparts[j]) Particle(fGenP,theta,phi);
@@ -130,13 +132,3 @@ double Generator::PsdrapInv(double eta){
 }
 
 
-
-/*
-void Generator::SetMult(double mult){
-	fMult=mult;
-}
-
-void Generator::SetPsdrapRng(double psdraprng){
-	fPsdrapRng=psdraprng;
-}
-*/

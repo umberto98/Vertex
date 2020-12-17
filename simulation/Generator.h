@@ -25,9 +25,6 @@ class Generator : public TObject{
   
   static void Destroy(); // Permettere di distruggere l'oggetto ad istanza singola
 
-  // Public function
-  //void SetMult(double mult);
-  //void SetPsdrapRng(double psdraprng);
 
   // Restituisce il punto di generazione delle particelle
   // -> posizione in cui avviene l'urto
