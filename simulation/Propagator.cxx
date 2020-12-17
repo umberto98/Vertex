@@ -2,13 +2,11 @@
 #include <TMath.h>
 #include <TRandom3.h>
 
-
 ClassImp(Propagator)
-
 
 Propagator* Propagator::fgInstance = NULL;
 
-
+//____________________________________________________________-
 Propagator::Propagator(const double rbp, const double r1, const double r2,
 		       const double l1, const double l2,
 		       const double dbp, const double d1):TObject(),
@@ -22,10 +20,12 @@ Propagator::Propagator(const double rbp, const double r1, const double r2,
   //Default constructor
 							  }
 
+//_________________________________________________________________
 Propagator::~Propagator(){
-  // Destructor
+  // default Destructor
 }
 
+//__________________________________________________________________
 Propagator* Propagator::Instance(const double rbp, const double r1, const double r2,
 				 const double l1, const double l2,
 				 const double dbp, const double d1){
@@ -35,84 +35,58 @@ Propagator* Propagator::Instance(const double rbp, const double r1, const double
   return fgInstance;
 }
 
+//_____________________________________________________________________
 void Propagator::Destroy(){
   if(fgInstance)delete fgInstance;
   fgInstance = NULL;
 }
 
-void Propagator::PrintStatus(){
-  cout << "Raggio BeamPipe(cm): " << rBp
-       << "\nRaggio primo layer(cm): " << rLay1
-       << "\nRaggio secondo layer(cm): " << rLay2
+//______________________________________________________________________
+void Propagator::PrintStatus() const{
+  cout << "Raggio BeamPipe(mm): " << rBp
+       << "\nRaggio primo layer(mm): " << rLay1
+       << "\nRaggio secondo layer(mm): " << rLay2
        << "\nSpessore BeamPipe(mm): " << fDepthBp
        << "\nSpessore primo layer(mm): " << fDepth1
-       << "\nLunghezza primo layer(cm): " << fLenght1
-       << "\nLunghezza secondo layer(cm): " << fLenght2 << endl;
+       << "\nLunghezza primo layer(mm): " << fLenght1
+       << "\nLunghezza secondo layer(mm): " << fLenght2 << "\n\n\n";
 }
 
-Point Propagator::Propagate(Particle &particle, int layer){
+//_______________________________________________________________________
+bool Propagator::Propagate(Particle &particle, Point &point, int layer){
   if(layer==0){
     particle.PropagateToRadius(rBp);
-    return particle.GetPoint();
+    point=particle.GetPoint();
+    return true;
   }
   else if(layer==1){
     particle.PropagateToRadius(rLay1);
-    if(IsHit(particle.GetPoint().fZ, fLenght1))
-      return particle.GetPoint();
-    return Point(0,0,0);
+    if(IsHit(particle.GetPoint().fZ, fLenght1)){
+      point=particle.GetPoint();
+      return true;
+    }
+    return false;
   }
   else if(layer==2){
     particle.PropagateToRadius(rLay2);
-    if(IsHit(particle.GetPoint().fZ, fLenght2))
-      return particle.GetPoint();
-    return Point(0,0,0);   
+    if(IsHit(particle.GetPoint().fZ, fLenght2)){
+      point=particle.GetPoint();
+      return true;
+    }
+    return false;   
   }
   else
-    return Point(0,0,0);
+    return false;
 }
 
+//______________________________________________________________
 bool Propagator::IsHit(const double zpart, const double lenght){
   if(TMath::Abs(zpart)<lenght/2)
     return true;
   return false;
 }
 
+//_____________________________________________________________
 void Propagator::MultipleScatter(Particle &particle){
-  //controllo rad2
-  particle.Rotate(gRandom->Gaus(0,0.001),2*TMath::ACos(-1)*gRandom->Rndm());
+  particle.Rotate(gRandom->Gaus(0,rmsScatt),2*TMath::ACos(-1)*gRandom->Rndm());
 }
-
-void Propagator::GaussianSmearing(Point &point, const double rphiRMS, const double zRMS, int layer){
-	double drphi=gRandom->Gaus(0,rphiRMS);
-	double dz=gRandom->Gaus(0,zRMS);
-	double r,dphi;
-	if (layer==1) r=rLay1;
-	else if (layer==2) r=rLay2;
-	else {
-	cout<<"invalid layer"<<endl;
-	return;
-	}
-	dphi=drphi/r;
-	point.fZ+=dz;
-	point.SetPhi(point.GetPhi()+dphi);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

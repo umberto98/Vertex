@@ -1,116 +1,134 @@
 #include <Riostream.h> 
 #include <TMath.h>
 #include <TRandom3.h>
-#include <TTree.h>
-#include <TBranch.h>
-#include <TFile.h>
-#include <TClonesArray.h>
-#include <TString.h>
-#include <TH1.h>
 #include "Generator.h"
 
-
 ClassImp(Generator)
- 
-Generator::Generator(int mult, double xyrms, double zrms, double psdraprng):
-TObject(),
-  fMult(mult),
+
+Generator* Generator::fgInstance = NULL;
+
+//________________________________________________________________
+Generator::Generator(const double xyrms, const double zrms,
+		     const int mult, const double etarange):
+  TObject(),
+  fGenP(),
   fXYrms(xyrms),
   fZrms(zrms),
-  fDist(false),
-  fPsdrapRng(psdraprng),
-  fEtaDist(NULL),
+  fPsdrapRng(etarange),
+  fMult(mult),
   fMultDist(NULL),
-  fGenP(0,0,0)
-{
+  fEtaDist(NULL){
+  // standard constructor
+  }
   
+//________________________________________________________________
+Generator::Generator(const double xyrms, const double zrms,
+		     const int mult, const TH1F* etadist):
+  TObject(),
+  fGenP(),
+  fXYrms(xyrms),
+  fZrms(zrms),
+  fPsdrapRng(0.),
+  fMult(mult),
+  fMultDist(NULL){
+  // standard constructor
+  fEtaDist=etadist;
 }
- 
-Generator::Generator(double xyrms, double zrms,TH1F* multdist, TH1F* etadist):
-   TObject(),
-   fXYrms(xyrms),
-   fZrms(zrms),
-   fPsdrapRng(0.),
-   fMult(0),
-   fDist(true),
-   fGenP(0,0,0)
-   {
- 			fEtaDist=etadist;
- 			fMultDist=multdist;
-   }
- 
+
+//__________________________________________________________________
+Generator::Generator(const double xyrms, const double zrms,
+		     const TH1F* multdist, const TH1F* etadist):
+  TObject(),
+  fGenP(),
+  fXYrms(xyrms),
+  fZrms(zrms),
+  fPsdrapRng(0.),
+  fMult(0){
+  //standard constructor per distribzioni
+  fEtaDist=etadist;
+  fMultDist=multdist;
+}
+
+//__________________________________________________________________
 Generator::~Generator(){
-//default destructor
-	cout<<"default destructor"<<endl;
+  //default destructor
 }
 
-
-void Generator::SetMult(double mult){
-	fMult=mult;
+//_________________________________________________________________
+Generator* Generator::InstanceG(const double xyrms, const double zrms,
+			        const int mult, const TH1F* etadist){
+  if(!fgInstance){
+    fgInstance = new Generator(xyrms, zrms, mult, etadist);
+  }
+  return fgInstance;
 }
 
-void Generator::SetXYrms(double xyrms){
-	fXYrms=xyrms;
+//_________________________________________________________________
+Generator* Generator::InstanceG(const double xyrms, const double zrms,
+				const TH1F* multdist,const TH1F* etadist){
+  if(!fgInstance){
+    fgInstance = new Generator(xyrms, zrms, multdist, etadist);
+  }
+  return fgInstance;
 }
 
-void Generator::SetZrms(double zrms){
-	fZrms=zrms;
+//_________________________________________________________________
+void Generator::Destroy(){
+  if(fgInstance)delete fgInstance;
+  fgInstance = NULL;
 }
 
-void Generator::SetPsdrapRng(double psdraprng){
-	fPsdrapRng=psdraprng;
+//____________________________________________________________
+int Generator::GetMult() const{
+  return fMult;
 }
 
+//_____________________________________________________________
+Point Generator::GetGenerationPoint() const{
+  return fGenP;
+}
+
+//_________________________________________________________________
 void Generator::SimulateEvent(TClonesArray &genparts){
   double eta,theta,phi;
-  fGenP=Point(gRandom->Gaus(0,fXYrms),gRandom->Gaus(0,fXYrms),gRandom->Gaus(0,fZrms));
-
+  fGenP.fX=gRandom->Gaus(0,fXYrms);
+  fGenP.fY=gRandom->Gaus(0,fXYrms);
+  if(!gZUNIF)
+    fGenP.fZ=gRandom->Gaus(0,fZrms);
+  else
+    fGenP.fZ=(gRandom->Rndm())*2*fZrms-fZrms;
+  
+  if(fMultDist) fMult=(int) (fMultDist->GetRandom()+0.5);
   if (fMult>0){
     for(int j =0;j<fMult;j++){
-      if (fDist) eta=fEtaDist->GetRandom(); 
+      if (fEtaDist) eta=fEtaDist->GetRandom();
       else eta=(gRandom->Rndm()*2-1)*fPsdrapRng;
       theta=PsdrapInv(eta);
       phi=2*acos(-1)*gRandom->Rndm();
       new(genparts[j]) Particle(fGenP,theta,phi);
     }
-  }
-  else {
-	 if (fDist) cout<<"Multiplicity not extracted, try RndmMult()"<<endl;
-	 cout<<"0 produced particles"<<endl;;
-	 return;
-  }
-  
+  }else {
+    if (fMultDist) cout<<"Multiplicity not extracted, try RndmMult()"<<endl;
+    cout<<"0 produced particles"<<endl;;
+    return;
+  }  
 }
-/*
-void Generator::SaveParticlesToFile(TString filename){
-	TFile file(filename, "RECREATE");
-	TTree* tree = new TTree("T","PVMCTrue");
-	TClonesArray* ptrparticles = new TClonesArray("Particle", 100);
-	TClonesArray& particles= *ptrparticles;
-	tree->Branch("Particle",&ptrparticles);
-	if (fMult>0){
-	 for(int j =0;j<fMult;j++){
-		 cout<<"Saving Particle:"<<j<<endl;
-		 new(particles[j]) Particle(fProdParticles[j]);
-		 tree->Fill();
-	 }
-	}
-	else cout<<"points array is empty"<<endl;
-	file.Write();
-	delete ptrparticles;
-	file.Close();
-	}
-*/
 
+//____________________________________________________________
+void Generator::PrintStatus() const{
+  cout << "X, Y rms(mm): " << fXYrms
+       << "\nZ rms(mm): " << fZrms;
+  if(fMultDist)
+    cout << "\nMolteplicità dalla distribuzione: " << fMultDist->GetTitle()
+	 << "\nPseudorapidità dalla distribuzione: " << fEtaDist->GetTitle() << "\n\n\n";
+  else
+    cout << "\nMolteplicità fissata a: " << fMult
+	 << "\nPseudorapidità dalla distribuzione " << fEtaDist->GetTitle() << "\n\n\n";
+}
+
+//_____________________________________________________________
 double Generator::PsdrapInv(double eta){
 	return 2*atan(TMath::Exp(-eta));
-}//Returns theta given pseudorapidity eta
-
-int Generator::RndmMult(){
-	fMult=fMultDist->GetRandom();
-	return fMult;
 }
 
-Point Generator::GetGenerationPoint(){
-  return fGenP;
-}
+
