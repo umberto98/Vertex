@@ -1,5 +1,5 @@
 # Vertex
-Progetto per il corso di Tecniche di ANalisi e Simulazione
+Progetto per il corso di Tecniche di Analisi Numerica e Simulazione
 Il programma simula il prodotto di una collisione ad alta energia con alcune approssimazioni e la successiva ricostruzione del vertice.
 
 Per compilare digitare da linea di comando di root:
