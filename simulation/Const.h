@@ -25,7 +25,7 @@ const int gLAYER2 {2};			//Da non modificare, per comodità si associa al second
 const bool gSMEAR {true};		//"true" smearing acceso, "false" smearing spento
 const bool gNOISE {true};		//"true" aggiunta di punti spuri, "false" non vengono aggiunti punti spuri
 const int gNS {10};			//Quantità di punti spuri aggiunti
-const int gHBINREC {10};		//Numero di bin in cui dividere l'istogramma per la ricostruzione
+const int gHBINREC {100};		//Numero di bin in cui dividere l'istogramma per la ricostruzione
 const double gHRANGEREC	{250};		//Semiampiezza dell'intervallo in cui l'istogramma viene riempito		
 
 
