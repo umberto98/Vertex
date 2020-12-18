@@ -4,14 +4,14 @@
 
 // Titolo dei vari file in input e in output standard
 
-const char* gTITLES {"sim_multass_noise20.root"};  	//Nome file in cui vengono salvati i risultati della simulazione
-const char* gTITLER {"rec_multass_noise20.root"};	//Nome file in cui vengono salvati i risultati dopo la ricostruzione
-const char* gTITLEG {"g_multass_noise20.root"};       	//Nome file in cui vengono salvati i grafici di supporto
+const char* gTITLES {"sim_multa.root"};  		//Nome file in cui vengono salvati i risultati della simulazione
+const char* gTITLER {"rec_multa_noise10.root"};		//Nome file in cui vengono salvati i risultati dopo la ricostruzione
+const char* gTITLEG {"g_multa_noise10.root"};       	//Nome file in cui vengono salvati i grafici di supporto
 
 	
 //Struttura simulation->Variabili globali necessarie nel Simulation.C
 
-const int gNEV {1000000};		//Inizializza il numero di eventi della simulazione
+const int gNEV {100000};		//Inizializza il numero di eventi della simulazione
 const int gDISTR {1};			//Inizializza la distribuzione in molteplicità:"0" fissa, "1" distribuzione assegnata, "2" distribuzione uniforme
 const bool gMSCAT {true};		//"true" scattering multiplo acceso,"false" scattering multiple spento
 const double gETARANGE{2.};		//Range in cui viene estretto eta(es se "2." allora -2.<eta<2.)
@@ -24,8 +24,8 @@ const int gLAYER2 {2};			//Da non modificare, per comodità si associa al second
 
 const bool gSMEAR {true};		//"true" smearing acceso, "false" smearing spento
 const bool gNOISE {true};		//"true" aggiunta di punti spuri, "false" non vengono aggiunti punti spuri
-const int gNS {5};			//Quantità di punti spuri aggiunti
-const int gHBINREC {100};		//Numero di bin in cui dividere l'istogramma per la ricostruzione
+const int gNS {10};			//Quantità di punti spuri aggiunti
+const int gHBINREC {10};		//Numero di bin in cui dividere l'istogramma per la ricostruzione
 const double gHRANGEREC	{250};		//Semiampiezza dell'intervallo in cui l'istogramma viene riempito		
 
 

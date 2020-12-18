@@ -10,3 +10,6 @@ simulation/grafici/primapart.docx
 simulation/sim_multass_nonoise.root
 simulation/sim_multcost_nonoise.root
 simulation/sim_multunif_nonoise.root
+*.root
+*.root
+simulation/rec_multass_noise20.root

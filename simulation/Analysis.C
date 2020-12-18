@@ -57,8 +57,8 @@ void Analysis(const char* titlein=gTITLER,const char* titleout=gTITLEG){
   const double multlims[nmultbins+1]={0.5,1.5,2.5,3.5,4.5,5.5,7.5,9.5,11.5,14.5,17.5,21.5,25.5,30.5,35.5,40.5,45.5,52.5,60.5,70.5,80.5};
 
   //bin di zeta
-  const int nzbins=22;
-  const double zlims[nzbins+1]={-300.,-255.,-210.,-180.,-165.,-149.,-119.,-100.,-80.,-50.,-25.,0.,25.,50.,80.,100.,119.,149.,165.,180.,210.,255.,300.};
+  const int nzbins=24;
+  const double zlims[nzbins+1]={-310.,-280.,-250,-210.,-180.,-165.,-149.,-119.,-100.,-80.,-50.,-25.,0.,25.,50.,80.,100.,119.,149.,165.,180.,210.,250.,280.,310.};
 
   //setto a quanto voglio tagliare le z del vertice
 
